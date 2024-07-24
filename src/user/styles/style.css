@@ -1,0 +1,55 @@
+@import url("../../../style/fonts.css");
+
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+body {
+	background-color: #f0f0f0;
+}
+
+.container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: space-around;
+	height: 100dvh;
+}
+
+form {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 20px;
+	height: 50dvh;
+	width: 80dvw;
+	border-radius: 10px;
+	background-color: red;
+}
+
+label {
+	user-select: none;
+	color: #f5f5f5;
+	min-width: 80%;
+	font-size: 15px;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+input {
+	height: 30px;
+	border: none;
+	border-radius: 5px;
+	font-size: 15px;
+	&:focus {
+		outline: none;
+		box-shadow: 0 0 50px #a6ff00;
+	}
+}
+input {
+	padding-left: 10px;
+}

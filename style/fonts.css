@@ -1,0 +1,17 @@
+@font-face {
+	font-family: "mulish";
+	src: local("mulish"), url("./assets/Mulish.ttf");
+}
+
+input {
+	font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande",
+		"Lucida Sans", Arial, sans-serif;
+}
+
+body {
+	font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+h2 {
+	font-family: "mulish";
+}
