@@ -5,6 +5,9 @@ error_reporting(E_ALL);
 
 header('Content-Type: text/html; charset=UTF-8');
 
+if (isset($_COOKIE['email'])) {
+	header('Location: src/user/home.php');
+}
 ?> 
 <!DOCTYPE html>
 <html lang="en">
@@ -30,7 +33,7 @@ header('Content-Type: text/html; charset=UTF-8');
 	</div>
 
 	<div class="container">
-		<form method="GET" action="src/authorization/auth.php">
+		<form method="POST" action="src/authorization/auth.php" enctype="multipart/form-data">
 			<label for="fname">
 				First Name
 				<input type="text" name="fname" id="fname" placeholder="Enter your first name" autocomplete="name"
@@ -38,7 +41,7 @@ header('Content-Type: text/html; charset=UTF-8');
 			</label>
 			<label for="lname">
 				Last Name
-				<input type="text" name="lname" id="lname" placeholder="Enter your last Name" autocomplete="family-name"
+				<input type="text" name="lname" id="lname" placeholder="Enter your last name" autocomplete="family-name"
 					required>
 			</label>
 			<label for="email">

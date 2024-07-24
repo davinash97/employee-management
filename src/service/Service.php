@@ -62,6 +62,10 @@ class Service {
 			return "Email or Phone is mandatory";
 		}
 
+		if ($this->isExistingUser($email) || $this->isExistingUser($phone)) {
+			return "User already exists";
+		}
+
 		$sql = "INSERT INTO `employees` (
 			`first_name`,
 			`last_name`,
@@ -69,16 +73,16 @@ class Service {
 			`phone`,
 			`position`,
 			`is_admin`
-		) VALUES (?, ?, ?, ?, ?, ?, ?)";
+		) VALUES (?, ?, ?, ?, ?, FALSE)";
 
 		$stmt = $this->conn->prepare($sql);
 
 		if ($stmt) {
-			$stmt->bind_param("sssiss", $first_name, $last_name, $email, $phone, $position, FALSE);
+			$stmt->bind_param("sssis", $first_name, $last_name, $email, $phone, $position);
 
 			try {
 				if ($stmt->execute()) {
-					return $this->readProfile($phone);
+					return json_encode($this->readProfile($phone));
 				} else {
 					return "Execute failed: " . $stmt->error;
 				}
@@ -137,15 +141,14 @@ class Service {
 		}
 	}
 
-	public function updateProfile($identifier, $email = null, $phone = null, $first_name = null, $last_name = null, $position = null, $profile_picture = null) {
-		// Check if email or phone is provided as identifier
-		if (empty($email) && empty($phone)) {
-			return "Email or Phone is mandatory for updating profile";
+	public function updateProfile($first_name = null, $last_name = null,$email = null, $phone = null, $position = null, $profile_picture = null) {
+		if (is_null($email) && is_null($phone)) {
+			return null;
 		}
 
-		// Build SQL query
-		$sql = "UPDATE `employees` SET ";
+		$identifier = (!is_null($email)) ? $email : $phone;
 
+		$sql = "UPDATE `employees` SET ";
 		$params = [];
 		$param_types = "";
 		$set_clause = "";
@@ -181,10 +184,8 @@ class Service {
 			$param_types .= "s";
 		}
 
-		// Remove trailing comma and space from set_clause
 		$set_clause = rtrim($set_clause, ", ");
 
-		// Finalize SQL query
 		if (!empty($email)) {
 			$sql .= $set_clause . " WHERE `email` = ?";
 			$param_types .= "s";
@@ -198,30 +199,32 @@ class Service {
 		$stmt = $this->conn->prepare($sql);
 
 		if ($stmt) {
-			// Bind parameters
 			$stmt->bind_param($param_types, ...$params);
 
 			try {
-				// Execute statement
 				if ($stmt->execute()) {
-					return true;
+					return $this->readProfile($identifier);
 				} else {
-					return "Execute failed: " . $stmt->error;
+					return null;
 				}
 			} catch (Exception $e) {
-				return "Error occurred: " . $e->getMessage();
+				// Handle any exceptions here
+				return null;
 			} finally {
 				$stmt->close();
 			}
 		} else {
-			return "Failed to prepare statement";
+			return null;
 		}
 	}
-
 	public function deleteProfile($identifier) {
 		// Check if email or phone is provided as identifier
 		if (empty($identifier)) {
 			return "Email or Phone is mandatory for deleting profile";
+		}
+
+		if ($this->isExistingUser($identifier) == false) {
+			return "User does not exist";
 		}
 
 		$sql = "";

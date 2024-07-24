@@ -7,7 +7,6 @@ include $rootDir . '/service/Service.php';
 
 $service = new Service("localhost", "admin","admin", "employees");
 
-session_start();
 $result = array();
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 	if (isset($_POST["email"]) || isset($_POST["phone"])) {
@@ -22,13 +21,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 		if ($existingUser === false) {
 			$service->createProfile($first_name, $last_name, $email, $phone, $position);
 			$result = $service->readProfile($email);
-			$_SESSION['email'] = $result['email'];
-			$_SESSION['phone'] = $result['phone'];
-			// $_SESSION['phone'] = $service->readProfile($phone);
-			// echo "<script>alert('Successfully created');</script>";
-			header('Location: ../user/home.php');
+			allowAccess($result);
 		} else {
-			echo "<script>alert('User already exists');</script>";
+			restrictAccess("User already exists, try logging in. Redirect to login page?");
 		}
 	} else {
 		echo "<script>alert('Email or Phone is mandatory');</script>";
@@ -39,22 +34,36 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 		$phone = isset($_GET['phone']) ? $_GET['phone'] : '';
 		
 		$existingUser = ($email == '') ? $service->isExistingUser($phone) : $service->isExistingUser($email);
+		$result = $service->readProfile($email);
 
-		if ($existingUser === false) {
-			echo "<script>alert('User not found');</script>";
+		if ($existingUser === true) {
+			allowAccess($result);
+			$result = $service->readProfile($email);
 		} else {
-			$result = $service->readProfile($_COOKIE['email']);
-			setcookie('email', $result['email'], time() + (86400), "/");
-			setcookie('phone', $result['phone'], time() + (86400), "/");
-			// header('Location: ../user/home.php');
-			header('Content-Type: application/json');
-			// var_dump($result);
-			echo json_encode($result);
-			// echo json_encode($_SESSION['phone']);
+			restrictAccess("User not Found!! Redirect to login page?");
 		}
 	} else {
 		$result['status'] = 'failed';
 		$result['result'] = 'Email or Phone is mandatory';
 	}
 }
-session_abort();
+
+function saveCookie($result){
+	setcookie('email', $result['email'], time() + (86400), "/");
+	setcookie('phone', $result['phone'], time() + (86400), "/");
+}
+
+function allowAccess($result){
+	saveCookie($result);
+	sleep(1); // For One Second
+	header('Location: ../user/home.php');
+}
+
+function restrictAccess($message) {
+	echo "<script>
+			alert('$message');
+			setTimeout(function() {
+				window.location.href = '../../index.php';
+			}, 1000); // 1000 milliseconds = 1 seconds
+		  </script>";
+}

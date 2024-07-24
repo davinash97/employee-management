@@ -19,6 +19,15 @@ signUP.addEventListener("click", () => {
 
 logIn.addEventListener("click", () => {
 	if (logIn.checked) {
+		if (fname.value != "") {
+			fname.value = "";
+		}
+		if (lname.value != "") {
+			lname.value = "";
+		}
+		if (position.value != "") {
+			position.value = "";
+		}
 		fname.disabled = true;
 		lname.disabled = true;
 		position.disabled = true;
